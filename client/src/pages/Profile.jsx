@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import{preview} from '../assets';
 import {getRandomPrompt} from '../utils';
 import{FormField, Loader} from '../components';
+
 const Profile = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -13,15 +14,38 @@ const Profile = () => {
   const[loading,setloading]= useState(false);
   const genre = "Rock";
   const PRESET_PROMPT  = getRandomPrompt(genre);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState('');
   useEffect(() => {
     console.log("fetching data")
-    fetch('http://localhost:4000/api/getUser')
-      .then((data) => {
-        setData(data)
-        console.log(data)
-        // setLoading(false)
-      })
+    // fetch('http://localhost:4000/api/getUser')
+    //   .then((data) => {
+    //     setData(data)
+    //     console.log(data)
+    //     // setLoading(false)
+    //   })
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/api/getUser', {
+          method: 'GET',
+          credentials: 'include', // Ensure credentials are included for cross-origin requests
+        });
+
+        // Check if the response is successful (status code 200)
+        if (response.ok) {
+          const result = await response.json(); // Parse the JSON data from the response
+          console.log(result)
+          setData(result); // Set the data in your state
+        } else {
+          console.error('Error:', response.status, response.statusText);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    // Call the fetchData function
+    fetchData();
   }, [])
     const generateImage = async () => {
         try {
@@ -78,11 +102,30 @@ const Profile = () => {
         setForm({...form, prompt: randomPrompt})
     };
 
+    const handleLogout = async () => {
+      try {
+        const res = await fetch('http://localhost:4000/logout', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          }
+        });
+        if(res) {
+          navigate('/');
+        }
+      } catch(err) {
+        console.log(err)
+      }
+    }
+
     
     return (
         <section className="max-w-7xl mx-auto">
           <div>
-            <h1 className="font-extrabold text-[#ffffff] text-[32px]">Tim Tuen</h1>
+            <div className='flex'>
+              <h1 className="font-extrabold text-[#ffffff] text-[32px]">{data.username}</h1>
+              <button className="font-extrabold text-[#ffffff] text-[20px] ml-[15px]" onClick={() => handleLogout()}>Logout</button>
+            </div>
             <p className="mt-2 text-[#666e75] text-[14px] max-w-[500px]">Blank blank blank blank</p>
           </div>
     

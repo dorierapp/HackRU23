@@ -8,7 +8,7 @@ const session = require("express-session");
 const cors = require("cors");
 const SpotifyStrategy = require('passport-spotify').Strategy;
 const app = express();
-const corsOptions = { origin: `http://localhost:5173`, credentials: true};
+const corsOptions = { origin: [`http://localhost:5173`, `http://localhost:5173/profile`], credentials: true};
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -23,6 +23,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 let user_id;
+let access_token;
 
 // MongoDB/Mongoose import and user model
 mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true}).then(() => {
@@ -46,6 +47,7 @@ passport.use(
       async function(accessToken, refreshToken, expires_in, profile, done) {
         console.log(profile)
         user_id = profile.id;
+        access_token = accessToken;
         let user;
 
         try {
@@ -91,13 +93,19 @@ passport.deserializeUser(async (id, cb) => {
     }
 });
 
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Credentials', true);
+    next();
+  });
 
-app.get('/api/getUser', (req, res) => {
+
+app.get('/api/getUser', async (req, res) => {
     console.log("request user")
     console.log(user_id)
     console.log(req.user)
-    const userinfo = User.find({user_id: user_id})
-    res.send(userinfo);
+    const userinfo = await User.find({user_id: user_id})
+    console.log(userinfo[0])
+    res.send(userinfo[0]);
 })
 
 app.get('/api/info', (req, res) => {
@@ -162,6 +170,15 @@ app.get("/api/spotify/getData", async (req, res) => {
 
 //   return await res.json();
 })
+
+app.post('/logout', function(req, res, next){
+    req.logout(function(err) {
+      if (err) { return next(err); }
+      console.log("logout")
+      console.log(req.user)
+      res.send(true);
+    });
+  });
 
 app.listen(4000, (req, res) => {
     console.log("server started on port 4000")
@@ -268,40 +285,91 @@ async function getAverageFeaturesOfTop50Songs(accessToken) {
   ];
 }
 
-async function getGenres(accessToken, playlistId) {
-    const headers = {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-    };
+async function describeTop3Features(accessToken, averageFeatures) {
+  const averages = averageFeatures;
 
-    let genres = [];
-    playlist = 
-     
-    genres.forEach(function(song) {
-        playlist
-        // artists = song.artists;
-        // artists.forEach(function(artist)) {
-        //     artistGenres = artist.genre
-        //     if(!genres.includes(genre)) {
-                
-        //     }
-        }
-    }
+  // Map the averages to their respective features for easier processing
+  const features = {
+      acousticness: averages[0],
+      danceability: averages[1],
+      energy: averages[2],
+      instrumentalness: averages[3],
+      liveness: averages[4],
+      valence: averages[5],
+      tempo: averages[6]
+  };
 
+  // Sort the features based on their values in descending order
+  const sortedFeatures = Object.entries(features).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+  const descriptions = [];
+
+  // Check each of the top 3 features and add appropriate descriptions
+  for (const [feature, value] of sortedFeatures) {
+      switch (feature) {
+          case 'acousticness':
+              descriptions.push("acoustic");
+              break;
+          case 'danceability':
+              descriptions.push("danceable");
+              break;
+          case 'energy':
+              descriptions.push("energetic");
+              break;
+          case 'instrumentalness':
+              descriptions.push("instrumental");
+              break;
+          case 'liveness':
+              descriptions.push("live performances");
+              break;
+          case 'valence':
+              if (value > 0.7) descriptions.push("happy");
+              else if (value < 0.3) descriptions.push("sad");
+              break;
+          case 'tempo':
+              if (value > 120) descriptions.push("fast-paced");
+              else if (value < 80) descriptions.push("slow-paced");
+              break;
+      }
+  }
+
+  return `${descriptions.join(", ")}.`;
 }
 
+async function getGenres(accessToken, playlistId) {
 
+    let genres = [];
 
+    fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+    headers: {
+        'Authorization': `Bearer ${accessToken}`
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const songs = data.items;
+        songs.forEach(song => {
+            artistGenres = item.track.artist.genres;
+            artistGenres.forEach(genre => {
+                if(!genres.includes(genre)) genres.push(genre);
+            });
+        });
+    })
+    .catch(error => console.error(error));
+    return `${genres.join(", ")}.`;
+}
 
+async function getPlaylistName(accessToken, playlistId) {
+  const endpoint = `https://api.spotify.com/v1/playlists/${playlistId}`;
+  const headers = {
+      "Authorization": `Bearer ${accessToken}`
+  };
 
-// Usage:
-// Replace 'YOUR_SPOTIFY_ACCESS_TOKEN' with your actual Spotify access token
-// Replace 'YOUR_PLAYLIST_ID' with the desired playlist ID
-// getAverageTrackFeatures('YOUR_SPOTIFY_ACCESS_TOKEN', 'YOUR_PLAYLIST_ID')
-//     .then(averages => {
-//         console.log(averages);
-//     })
-//     .catch(error => {
-//         console.error(error);
-//     });
+  const response = await fetch(endpoint, { headers });
+  if (!response.ok) {
+      throw new Error(`Failed to fetch playlist: ${response.statusText}`);
+  }
 
+  const data = await response.json();
+  return data.name;
+}
