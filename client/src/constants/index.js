@@ -381,7 +381,39 @@ export const prompts = {
         "Oil painting of a moonlit punk gathering in an ancient graveyard",
         "Realistic worn-out vinyl record of a legendary punk album on a turntable"
     ], 
-    
+    'Folk': [
+        "Realistic handcrafted wooden acoustic guitar against a rustic backdrop",
+        "Watercolor painting of a folk musician playing beside a campfire",
+        "Abstract art capturing the organic and earthy essence of folk tunes",
+        "Oil painting of a countryside festival with folk dancers and musicians",
+        "Sketch of an old harmonica and a weathered hat on a wooden table",
+        "Digital art of a serene meadow with a folk band under a tree",
+        "Watercolor of a traditional folk storytelling session in a village",
+        "Realistic drawing of a vintage mandolin with intricately carved details",
+        "Impressionist painting of a folk duet harmonizing on a porch swing",
+        "Watercolor of a riverside scene with a banjo player in a canoe",
+        "Charcoal sketch of a cozy cabin interior with folk instruments on display",
+        "Gouache painting of a bustling folk market with melodies in the air",
+        "Digital rendering of a folk-infused dreamland with floating musical notes",
+        "Pastel drawing of children dancing around a maypole to folk tunes",
+        "Midsummer celebration in watercolor with folk music and lanterns",
+        "Oil painting of a historic tavern with folk tales and songs being shared",
+        "Realistic leather-bound book of folk ballads and legends",
+        "Sketch in ink of a fiddler playing with passion amidst a gathering",
+        "Pop art of a vintage radio tuning into a folk music broadcast",
+        "Watercolor of a moonlit forest glade with folk musicians and mystical creatures",
+        "Digital art of a traveling wagon with folk artists and colorful banners",
+        "Oil painting of a mountain pass with a folk singer narrating tales",
+        "Secluded beach scene in watercolor with a folk jam session",
+        "Acrylic painting of a bustling town square with a folk music festival",
+        "Digital art of a treehouse village with folk melodies resonating",
+        "Sketch of a close-knit community sharing folk songs under starry skies",
+        "Folklore-inspired landscape in watercolor with mythical beings and tunes",
+        "Stylized feather quill writing folk lyrics on parchment in charcoal",
+        "Oil painting of a serene lakeside with reflections of folk dancers and lanterns",
+        "Realistic tapestry showcasing iconic symbols and instruments of folk tradition"
+    ],
+        
     
     
     

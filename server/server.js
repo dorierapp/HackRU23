@@ -180,6 +180,21 @@ app.post('/logout', function(req, res, next){
     });
   });
 
+app.post('/api/retrieveData', (req, res) => {
+    // Send the top data for the prompt as an array
+    // [genre, likability, etc.]
+    const prompt = req.body.prompt;
+
+    if(prompt === "songs") {
+
+    } else if(prompt === "artists") {
+
+    } else {
+
+    }
+
+})
+
 app.listen(4000, (req, res) => {
     console.log("server started on port 4000")
 })

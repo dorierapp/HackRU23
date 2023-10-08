@@ -47,6 +47,8 @@ const Profile = () => {
     // Call the fetchData function
     fetchData();
   }, [])
+
+
     const generateImage = async () => {
         try {
             setGeneratingImg(true);
@@ -118,6 +120,26 @@ const Profile = () => {
       }
     }
 
+    const playlists = [
+      "playlist1",
+      "playlist2",
+      "playlist3",
+      "playlist4"
+    ]
+
+    const fetchData = async (prompt) => {
+      // prompt = category (songs, artists, etc.)
+      // Get the data needed for the prompt from the backend by utilizing what prompt is entered
+      // into the dropdown
+      // Call this function during the image generation to create the prompt
+      try {
+        const res = await fetch('https://localhost:4000/api/retrieveData')
+        return res.json();
+      } catch(err) {
+        console.log(err)
+      }
+    }
+
     
     return (
         <section className="max-w-7xl mx-auto">
@@ -127,6 +149,17 @@ const Profile = () => {
               <button className="font-extrabold text-[#ffffff] text-[20px] ml-[15px]" onClick={() => handleLogout()}>Logout</button>
             </div>
             <p className="mt-2 text-[#666e75] text-[14px] max-w-[500px]">Blank blank blank blank</p>
+            <select
+              className="form-control"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="songs">Songs</option>
+              <option value="artists">Artists</option>
+              {playlists.map(name => {
+                <option value={name}>{name}</option>
+              })}
+            </select>
           </div>
     
           <form className="mt-16 max-w-3xl" onSubmit={handleSubmit}>
